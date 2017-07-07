@@ -3,14 +3,14 @@ package com.hobby.soiya.barometricpressurechange.data;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class List {
+public class WeatherDayList {
 
     @SerializedName("dt")
     @Expose
     private Integer dt;
     @SerializedName("main")
     @Expose
-    private Main main;
+    private TemperatureEtc temperatureEtc;
     @SerializedName("weather")
     @Expose
     private java.util.List<Weather> weather = null;
@@ -26,9 +26,6 @@ public class List {
     @SerializedName("dt_txt")
     @Expose
     private String dtTxt;
-    @SerializedName("rain")
-    @Expose
-    private Rain rain;
 
     public Integer getDt() {
         return dt;
@@ -38,12 +35,12 @@ public class List {
         this.dt = dt;
     }
 
-    public Main getMain() {
-        return main;
+    public TemperatureEtc getTemperatureEtc() {
+        return temperatureEtc;
     }
 
-    public void setMain(Main main) {
-        this.main = main;
+    public void setTemperatureEtc(TemperatureEtc temperatureEtc) {
+        this.temperatureEtc = temperatureEtc;
     }
 
     public java.util.List<Weather> getWeather() {
@@ -84,13 +81,5 @@ public class List {
 
     public void setDtTxt(String dtTxt) {
         this.dtTxt = dtTxt;
-    }
-
-    public Rain getRain() {
-        return rain;
-    }
-
-    public void setRain(Rain rain) {
-        this.rain = rain;
     }
 }

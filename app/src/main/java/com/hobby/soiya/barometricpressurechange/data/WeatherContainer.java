@@ -16,7 +16,7 @@ public class WeatherContainer {
     private Integer cnt;
     @SerializedName("list")
     @Expose
-    private java.util.List<List> list = null;
+    private java.util.List<WeatherDayList> weatherDayList = null;
     @SerializedName("city")
     @Expose
     private City city;
@@ -45,12 +45,12 @@ public class WeatherContainer {
         this.cnt = cnt;
     }
 
-    public java.util.List<List> getList() {
-        return list;
+    public java.util.List<WeatherDayList> getWeatherDayList() {
+        return weatherDayList;
     }
 
-    public void setList(java.util.List<List> list) {
-        this.list = list;
+    public void setWeatherDayList(java.util.List<WeatherDayList> weatherDayList) {
+        this.weatherDayList = weatherDayList;
     }
 
     public City getCity() {
