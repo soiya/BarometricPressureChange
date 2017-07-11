@@ -3,7 +3,7 @@ package com.hobby.soiya.barometricpressurechange.data;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-class TemperatureEtc {
+public class TemperatureEtc {
 
     @SerializedName("temp")
     @Expose
@@ -28,7 +28,7 @@ class TemperatureEtc {
     private Integer humidity;
     @SerializedName("temp_kf")
     @Expose
-    private Integer tempKf;
+    private Double tempKf;
 
     public Double getTemp() {
         return temp;
@@ -86,11 +86,11 @@ class TemperatureEtc {
         this.humidity = humidity;
     }
 
-    public Integer getTempKf() {
+    public Double getTempKf() {
         return tempKf;
     }
 
-    public void setTempKf(Integer tempKf) {
+    public void setTempKf(Double tempKf) {
         this.tempKf = tempKf;
     }
 }

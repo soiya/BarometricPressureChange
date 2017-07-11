@@ -3,7 +3,7 @@ package com.hobby.soiya.barometricpressurechange.data;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-class Clouds {
+public class Clouds {
 
     @SerializedName("all")
     @Expose
