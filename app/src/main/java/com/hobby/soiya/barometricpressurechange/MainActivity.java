@@ -3,8 +3,14 @@ package com.hobby.soiya.barometricpressurechange;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.hobby.soiya.barometricpressurechange.data.WeatherContainer;
+import com.hobby.soiya.barometricpressurechange.data.WeatherDayList;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -22,11 +28,14 @@ import static com.hobby.soiya.barometricpressurechange.Constants.ZIP_CODE;
 
 public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
+    private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        listView = (ListView)findViewById(R.id.listView);
 
         showPascal();
     }
@@ -41,12 +50,18 @@ public class MainActivity extends AppCompatActivity {
         });
         logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
 
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(logging).build();
+        OkHttpClient client = new OkHttpClient.Builder()
+                // ログを出す
+                .addInterceptor(logging)
+                .build();
 
         retrofit = new Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                // エンドポイントの設定
                 .baseUrl("http://api.openweathermap.org")
+                // jsonライブラリ指定
                 .addConverterFactory(GsonConverterFactory.create())
+                // okhttpクライアントを追加
                 .client(client)
                 .build();
 
@@ -62,7 +77,17 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(@NonNull WeatherContainer weatherContainer) {
-                        Log.d("Pascal",String.valueOf(weatherContainer.getWeatherDayList().get(1).getTemperatureEtc().getGrndLevel()));
+                        java.util.List<WeatherDayList> weatherDayLists = weatherContainer.getWeatherDayList();
+                        java.util.List<Double> pascalList = new ArrayList<>();
+
+                        for(WeatherDayList wd : weatherDayLists){
+                            pascalList.add(wd.getTemperatureEtc().getGrndLevel());
+                        }
+
+                        ArrayAdapter<Double> pascalArrayAdapter =
+                                new ArrayAdapter<>(getApplication(), android.R.layout.simple_list_item_1, pascalList);
+
+                        listView.setAdapter(pascalArrayAdapter);
                     }
 
                     @Override
