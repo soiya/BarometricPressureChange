@@ -2,15 +2,18 @@ package com.hobby.soiya.barometricpressurechange;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.hobby.soiya.barometricpressurechange.data.WeatherContainer;
 import com.hobby.soiya.barometricpressurechange.data.WeatherDayList;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Date;
+import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -28,14 +31,28 @@ import static com.hobby.soiya.barometricpressurechange.Constants.ZIP_CODE;
 
 public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
-    private ListView listView;
+    private RecyclerView recyclerView;
+    private List<Pascal> pascalList = new ArrayList<>();;
+    private PascalsAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        listView = (ListView)findViewById(R.id.listView);
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+
+        // RecyclerViewに表示するViewにアプリケーション固有のデータセットをバインドする
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        // 区切り線の追加
+        // LinearLayoutManager.VERTICAL -> 縦スクロール
+        recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), LinearLayoutManager.VERTICAL));
+        // 基本的なアニメーションの追加
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         showPascal();
     }
@@ -75,19 +92,23 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
+                    // リストへ追加
                     @Override
                     public void onNext(@NonNull WeatherContainer weatherContainer) {
+                        mAdapter = new PascalsAdapter(pascalList);
                         java.util.List<WeatherDayList> weatherDayLists = weatherContainer.getWeatherDayList();
-                        java.util.List<Double> pascalList = new ArrayList<>();
 
                         for(WeatherDayList wd : weatherDayLists){
-                            pascalList.add(wd.getTemperatureEtc().getGrndLevel());
+                            long unixtime;
+                            Date day;
+
+                            unixtime = wd.getDt().longValue()*1000L;
+                            day = new Date(unixtime);
+                            Pascal pascal = new Pascal(wd.getTemperatureEtc().getGrndLevel(), day);
+                            pascalList.add(pascal);
                         }
-
-                        ArrayAdapter<Double> pascalArrayAdapter =
-                                new ArrayAdapter<>(getApplication(), android.R.layout.simple_list_item_1, pascalList);
-
-                        listView.setAdapter(pascalArrayAdapter);
+                        recyclerView.setAdapter(mAdapter);
+                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override

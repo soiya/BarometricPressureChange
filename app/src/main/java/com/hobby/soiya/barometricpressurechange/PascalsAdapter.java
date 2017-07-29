@@ -29,17 +29,16 @@ public class PascalsAdapter extends RecyclerView.Adapter<PascalsAdapter.MyViewHo
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // 表示するレイアウトを設定
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.pascal_list_row, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.pascal_list_row, parent, false);
         return new MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         // データ表示
-        Pascal pascal = pascalsList.get(position);
-        holder.pascal.setText(String.valueOf(pascal.getPascal()));
-        holder.date.setText(new SimpleDateFormat("yyyy-MM-dd hh:mm").format(pascal.getDate()));
+        holder.pascal.setText(String.valueOf(pascalsList.get(position).getPascal()));
+        holder.date.setText(new SimpleDateFormat("yyyy-MM-dd kk:mm:ss")
+                .format(pascalsList.get(position).getDate()));
 
     }
 
