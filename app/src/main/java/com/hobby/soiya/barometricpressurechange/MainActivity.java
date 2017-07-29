@@ -2,9 +2,18 @@ package com.hobby.soiya.barometricpressurechange;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.hobby.soiya.barometricpressurechange.data.WeatherContainer;
+import com.hobby.soiya.barometricpressurechange.data.WeatherDayList;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -22,11 +31,28 @@ import static com.hobby.soiya.barometricpressurechange.Constants.ZIP_CODE;
 
 public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
+    private RecyclerView recyclerView;
+    private List<Pascal> pascalList = new ArrayList<>();;
+    private PascalsAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+
+        // RecyclerViewに表示するViewにアプリケーション固有のデータセットをバインドする
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        // 区切り線の追加
+        // LinearLayoutManager.VERTICAL -> 縦スクロール
+        recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), LinearLayoutManager.VERTICAL));
+        // 基本的なアニメーションの追加
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         showPascal();
     }
@@ -41,12 +67,18 @@ public class MainActivity extends AppCompatActivity {
         });
         logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
 
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(logging).build();
+        OkHttpClient client = new OkHttpClient.Builder()
+                // ログを出す
+                .addInterceptor(logging)
+                .build();
 
         retrofit = new Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                // エンドポイントの設定
                 .baseUrl("http://api.openweathermap.org")
+                // jsonライブラリ指定
                 .addConverterFactory(GsonConverterFactory.create())
+                // okhttpクライアントを追加
                 .client(client)
                 .build();
 
@@ -60,9 +92,23 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
+                    // リストへ追加
                     @Override
                     public void onNext(@NonNull WeatherContainer weatherContainer) {
-                        Log.d("Pascal",String.valueOf(weatherContainer.getWeatherDayList().get(1).getTemperatureEtc().getGrndLevel()));
+                        mAdapter = new PascalsAdapter(pascalList);
+                        java.util.List<WeatherDayList> weatherDayLists = weatherContainer.getWeatherDayList();
+
+                        for(WeatherDayList wd : weatherDayLists){
+                            long unixtime;
+                            Date day;
+
+                            unixtime = wd.getDt().longValue()*1000L;
+                            day = new Date(unixtime);
+                            Pascal pascal = new Pascal(wd.getTemperatureEtc().getGrndLevel(), day);
+                            pascalList.add(pascal);
+                        }
+                        recyclerView.setAdapter(mAdapter);
+                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
