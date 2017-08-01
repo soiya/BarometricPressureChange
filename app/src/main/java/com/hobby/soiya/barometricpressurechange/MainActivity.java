@@ -1,5 +1,6 @@
 package com.hobby.soiya.barometricpressurechange;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -25,13 +26,13 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-
 import static com.hobby.soiya.barometricpressurechange.Constants.API_KEY;
 import static com.hobby.soiya.barometricpressurechange.Constants.ZIP_CODE;
 
 public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
     private RecyclerView recyclerView;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private List<Pascal> pascalList = new ArrayList<>();;
     private PascalsAdapter mAdapter;
 
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
 
         // RecyclerViewに表示するViewにアプリケーション固有のデータセットをバインドする
         recyclerView.setHasFixedSize(true);
@@ -53,6 +55,15 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), LinearLayoutManager.VERTICAL));
         // 基本的なアニメーションの追加
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // 上に引っ張ったら更新するやつ
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // 引っ張って離した時に呼ばれます。
+                showPascal();
+            }
+        });
 
         showPascal();
     }
@@ -118,7 +129,10 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onComplete() {
-                        Log.d("API", "complete");
+                        // 更新のぐるぐるを止める
+                        if (swipeRefreshLayout.isRefreshing()) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
                     }
                 });
 
