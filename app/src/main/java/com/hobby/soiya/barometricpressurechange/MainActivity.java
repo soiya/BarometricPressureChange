@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private List<Pascal> pascalList = new ArrayList<>();;
     private PascalsAdapter mAdapter;
 
     @Override
@@ -106,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                     // リストへ追加
                     @Override
                     public void onNext(@NonNull WeatherContainer weatherContainer) {
+                        List<Pascal> pascalList = new ArrayList<>();
                         mAdapter = new PascalsAdapter(pascalList);
                         java.util.List<WeatherDayList> weatherDayLists = weatherContainer.getWeatherDayList();
 
@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         recyclerView.setAdapter(mAdapter);
                         mAdapter.notifyDataSetChanged();
+                        Log.d("recyclerView", String.valueOf(mAdapter.getItemCount()));
                     }
 
                     @Override
